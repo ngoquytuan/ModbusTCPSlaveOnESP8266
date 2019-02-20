@@ -49,7 +49,7 @@
 
 #define MB_PORT 502  
 #define MB_ESP8266
-//#define MBDebug     //Serial1 debug enable
+#define MBDebug     //Serial1 debug enable
 
 #include "Arduino.h"
 #define LED_PIN LED_BUILTIN

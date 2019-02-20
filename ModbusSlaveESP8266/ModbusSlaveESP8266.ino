@@ -11,17 +11,20 @@ Adafruit_ADS1115 ads;  /* Use this for the 16-bit version */
 //byte subnet[]  = { 255, 255, 255, 0 };
 //*/
 ModbusTCPSlave Mb;
-
+#include<time.h>
 unsigned long timer;
 unsigned long checkRSSIMillis;
-
+#define ledpin 16
+int16_t pwm = 0;
+int16_t freq = 1000;
 void setup()
 {
 
   //Serial.printf("Connection status: %d\n", WiFi.status());
   //Serial.begin(115200);
   
-  Mb.begin("Bunma", "12345678");
+  Mb.begin("SWAT", "thitmeocon");
+  
   delay(1000);
   Mb.MBInputRegister[0] = 100;
   Mb.MBInputRegister[1] = 65500;
@@ -34,16 +37,30 @@ void setup()
   Mb.MBHoldingRegister[2] = 0x2203;
   Mb.MBHoldingRegister[3] = 0x3304;
   Mb.MBHoldingRegister[4] = 0x4405;
+/*
+  configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+  Serial.println("\nWaiting for time");
+  while (!time(nullptr)) {
+    Serial.print(".");
+    delay(1000);
+  }
+  Serial.println("");
+  */
   ads.begin();
+  pinMode (ledpin, OUTPUT );
+  analogWriteFreq(80000);
+  analogWrite(ledpin,400);
+  
 }
 
 void loop()
 {
   int16_t adc0, adc1, adc2, adc3;
+  
   Mb.Run();
   delay(10);
 
-  if (millis() - timer >= 1000) {
+  if (millis() - timer >= 100) {
     timer = millis();
     Mb.MBInputRegister[1]++;
     //WiFi.printDiag(Serial);
@@ -57,11 +74,21 @@ void loop()
     //Serial.print(", AIN3: "); Serial.println(adc3);
     Mb.MBInputRegister[2] = adc2;
     Mb.MBInputRegister[3] = adc3;
-
+    //analogWrite(ledpin,pwm++);
+    //time_t now = time(nullptr);
+    //Serial.println(ctime(&now));
+    //digitalWrite(ledpin, HIGH);
+    //pwm = pwm + 10;
+    //analogWrite(ledpin,pwm);
+    //analogWriteFreq(150000);
   }
 
   if (millis() - checkRSSIMillis >= 10000) {
+    //freq = freq +1000;
+    //analogWriteFreq(freq);
+    //pwm = 0;
     checkRSSIMillis = millis();
+    //digitalWrite(ledpin, LOW);
     Mb.MBInputRegister[0] = checkRSSI();
   }
 }
